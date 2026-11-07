@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Pre-trained Image Generators for Adaptive Robot Simulation">
+  <meta name="keywords" content="Robot Simulation, Image Generation, FLUX.2, LoRA, Robotics">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PSRS: Pixel-Space Robot Simulation</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="columns is-centered">
+      <div class="column has-text-centered">
+        <h1 class="publication-title">Pre-trained Image Generators for Adaptive Robot Simulation</h1>
+        <div class="is-size-5 publication-authors">
+          <span class="author-block">
+            <a href="https://jl6017.github.io/">Jiong Lin</a>,
+            Yihong Liu,
+            <a href="https://judahgoldfeder.com/">Judah Goldfeder</a>,
+            <a href="https://www.hodlipson.com/">Hod Lipson</a>
+          </span>
+        </div>
+        <div class="is-size-5 publication-authors">
+          <span class="author-block">Columbia University</span>
+        </div>
+        <div class="is-size-5 publication-authors">
+          <span class="author-block">CoRL 2026 Workshop on The Action Gap (TAG 2026)</span>
+        </div>
+
+        <div class="column has-text-centered">
+          <div class="publication-links">
+            <span class="link-block">
+              <a href="https://github.com/jl6017/psrs" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <i class="fab fa-github"></i>
+                </span>
+                <span>GitHub</span>
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths" style="margin-top: -4rem;">
+        <h2 class="title is-3">Abstract</h2>
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <img src="static/image/teaser.png" alt="Third-person robot simulation with an image generator" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Action-conditioned generative models of robots usually use egocentric views from the robot's cameras, which limit the view to the gripper and its workspace and leave the rest of the body unseen.
+            We study the third-person view: given one image of a robot with its end-effector and camera poses, render the whole robot at a new end-effector pose, from a new camera pose, or both.
+            At test time, the model needs no URDF, joint angles or simulator.
+            We fine-tune the image generator FLUX.2 with LoRA on image pairs streamed from MuJoCo, and give it the end-effector and camera poses as condition tokens together with a per-pixel end-effector ray heatmap.
+            On a 5-DoF WidowX 200 in two render styles and a 7-DoF Franka FR3, the predicted arm reaches a body IoU, the mean IoU of the arm links below the wrist, of 0.27–0.53, against at most 0.08 for nearest-neighbor retrieval and 0.19 for large language models that write rendering code.
+            When the robot's upper arm is bent, continuing to train the model on 30–300 trajectories of the modified robot adapts it toward the new body.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Method -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+        <div>
+          <img src="static/image/method.png" alt="Method" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>(a) Inside the training loop, MuJoCo renders a trajectory of arm configurations (rows) from four cameras (columns), and a training pair (<i>I</i>, <i>I′</i>) is drawn from it. (b) Each latent token of the context image and of the noisy target is concatenated with the Plücker coordinates <i>P</i> of its camera rays and its end-effector ray heatmap <i>H</i>, and embedded by FLUX.2's patch embedding, extended with trained weights for <i>P</i> and <i>H</i>. 🔥 trained, ❄️ frozen.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Results</h2>
+        <div>
+          <img src="static/image/table_main.png" alt="Main results" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>48 test pairs per setting (16 per mode), mean ± std over pairs; ours: 4 sampling seeds. Body: mean IoU of the arm links below the wrist. Grip: gripper centroid error in pixels (128×128). Shading: best, second and third.</p>
+        </div>
+        <div>
+          <img src="static/image/gallery.png" alt="Predictions on the test set" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>Predictions on the test set: the first test pair of each mode. Corner number: body IoU; blue: best per pair.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ablation and adaptation -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Ablation and Adaptation</h2>
+        <div>
+          <img src="static/image/ablation_steps.png" alt="Ablations on the end-effector ray heatmap and sampling steps" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>(a) Link IoU and gripper error on the 192 test pairs every 1,000 steps, with and without the heatmap at the same learning rate. (b) Link IoU of the final models against sampling steps, with and without guidance.</p>
+        </div>
+        <div>
+          <img src="static/image/bent.png" alt="A bent upper arm" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>A bent upper arm, 30° (left) and 45° (right): the four test pairs per angle where the bend changes the arm most, picked before prediction. Intact arm: the unbent robot at the same end-effector and camera poses. Adapted: on 300 trajectories of the bent robot.</p>
+        </div>
+        <div>
+          <img src="static/image/ood.png" alt="Out-of-distribution action inputs" style="max-width: 100%; margin: 10px auto; display: block;">
+        </div>
+        <div class="content has-text-justified">
+          <p>Out-of-distribution action inputs (realistic WX200, first pair of each category). MuJoCo: the colliding pose (top two rows) or the closest reachable pose (bottom two rows); red dot: requested end-effector position.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BibTeX Section -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{lin2026pretrained,
+  title={Pre-trained Image Generators for Adaptive Robot Simulation},
+  author={Lin, Jiong and Liu, Yihong and Goldfeder, Judah and Lipson, Hod},
+  booktitle={CoRL 2026 Workshop on The Action Gap},
+  year={2026}
+}</code></pre>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class='title is-3'>Contact</div>
+      <div>
+        For questions, feel free to contact us through our GitHub repository.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is built using the template from
+            <a href="https://github.com/nerfies/nerfies.github.io">nerfies</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
